@@ -1,0 +1,29 @@
+## kallisto version: 0.43.1
+## mouse reference: GRCm38, use cdna sequence downloaded from Ensembl
+
+## re-organize the files 
+## NOTE: the files had wrong ".gz" extension in the original package. These were just tar files without additional gzip. 
+
+for f in MM_CUMC_BulkRNASeq_Batch*gz; do g=`echo $f | cut -f1 -d '.' | cut -f4 -d '_'`; echo $g;  mkdir $g ; cp $f $g/$g.tar ; cd $g; tar xvf $g.tar; cd ..; done
+
+# then move all fastq files into one directory:
+mkdir fastq
+find . -name "*.fq.gz" | xargs -I {} mv {} fastq
+# remove temporary files
+rm -rf Batch*
+
+# move fastq to analysis directory
+
+# run Kallisto:
+# under fastq directory:
+nohup bash ../run.kallisto.sh &
+
+# add gene symbols (names)
+for f in kallisto.sample.*; do ruby ../map_mouse_gene_IDs.rb $f/abundance.tsv  ~/resources/references/mouse.genes.ensembl.GRCm38.p5.txt $f/abundance; done
+
+
+# concatenate all samples:
+ls kallisto.sample*/abundance.genes.txt > list.outputnames.txt
+
+ruby ../concat.samples.rb list.outputnames.txt
+
