@@ -1,4 +1,4 @@
-# Suite of scripts for RNA-seq data analysis
+# Scripts for RNA-seq data analysis
 
-core algorithm is Kallisto. 
+The workflow starts with Kallisto. 
 
